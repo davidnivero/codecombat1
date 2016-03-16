@@ -266,8 +266,8 @@ module.exports = class CampaignView extends RootView
     authModal.mode = 'signup'
     @openModalView authModal
 
-  showAds: -> 
-    if application.isProduction() && !me.isPremium() && !window.serverConfig.picoCTF
+  showAds: ->
+    if application.isProduction() && !me.isPremium() && !me.isTeacher() && !window.serverConfig.picoCTF
       return me.getCampaignAdsGroup() is 'leaderboard-ads'
     false
 
