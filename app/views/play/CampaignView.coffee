@@ -266,7 +266,10 @@ module.exports = class CampaignView extends RootView
     authModal.mode = 'signup'
     @openModalView authModal
 
-  showAds: -> application.isProduction() && !me.isPremium() && !window.serverConfig.picoCTF
+  showAds: -> 
+    if application.isProduction() && !me.isPremium() && !window.serverConfig.picoCTF
+      return me.getCampaignAdsGroup() is 'leaderboard-ads'
+    false
 
   annotateLevel: (level) ->
     level.position ?= { x: 10, y: 10 }

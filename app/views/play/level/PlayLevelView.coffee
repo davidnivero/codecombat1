@@ -153,7 +153,10 @@ module.exports = class PlayLevelView extends RootView
 
   isCourseMode: -> @courseID and @courseInstanceID
 
-  showAds: -> application.isProduction() && !me.isPremium() && !window.serverConfig.picoCTF && !@isCourseMode()
+  showAds: ->
+    if application.isProduction() && !me.isPremium() && !window.serverConfig.picoCTF && !@isCourseMode()
+      return me.getCampaignAdsGroup() is 'leaderboard-ads'
+    false
 
   scaleGameplayForAdSpace: ->
     return unless @showAds()
