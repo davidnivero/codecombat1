@@ -492,7 +492,7 @@
     feature5: "Video tutorials"
     feature6: "Premium email support"
     feature7: "Private <strong>Clans</strong>"
-    feature8: "No ads!"
+    feature8: "<strong>No ads!</strong>"
     free: "Free"
     month: "month"
     must_be_logged: "You must be logged in first. Please create an account or log in from the menu above."
