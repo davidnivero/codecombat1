@@ -121,8 +121,6 @@ module.exports = class PlayLevelView extends RootView
       @load()
       application.tracker?.trackEvent 'Started Level Load', category: 'Play Level', level: @levelID, label: @levelID unless @observing
 
-    @scaleGameplayForAdSpace()
-
   setLevel: (@level, givenSupermodel) ->
     @supermodel.models = givenSupermodel.models
     @supermodel.collections = givenSupermodel.collections
@@ -146,7 +144,6 @@ module.exports = class PlayLevelView extends RootView
     @loadEndTime = new Date()
     @loadDuration = @loadEndTime - @loadStartTime
     console.debug "Level unveiled after #{(@loadDuration / 1000).toFixed(2)}s"
-    @scaleGameplayForAdSpace()
     unless @observing
       application.tracker?.trackEvent 'Finished Level Load', category: 'Play Level', label: @levelID, level: @levelID, loadDuration: @loadDuration
       application.tracker?.trackTiming @loadDuration, 'Level Load Time', @levelID, @levelID
@@ -157,34 +154,6 @@ module.exports = class PlayLevelView extends RootView
     if application.isProduction() && !me.isPremium() && !me.isTeacher() && !window.serverConfig.picoCTF && !@isCourseMode()
       return me.getCampaignAdsGroup() is 'leaderboard-ads'
     false
-
-  scaleGameplayForAdSpace: ->
-    return unless @showAds()
-    availableHeight = window.innerHeight
-    adHeight = $('.ad-container').outerHeight() ? 90
-    minimumGameHeight = 768
-    availableHeightForGame = availableHeight - adHeight
-    gameContainer = $('.game-container')
-    if availableHeightForGame < minimumGameHeight and gameContainer
-      heightScale = availableHeightForGame / minimumGameHeight
-      # console.log 'scaleGameplayForAdSpace', availableHeight, adHeight, minimumGameHeight, availableHeightForGame, heightScale
-      gameContainer.css("transform", "scale(#{heightScale})")
-      gameContainer.css("transform-origin", "top")
-      gameContainer.css("-webkit-transform", "scale(#{heightScale})")
-      gameContainer.css("-webkit-transform-origin", "top")
-      gameContainer.css("-moz-transform", "scale(#{heightScale})")
-      gameContainer.css("-moz-transform-origin", "top")
-      gameContainer.css("-ms-transform", "scale(#{heightScale})")
-      gameContainer.css("-ms-transform-origin", "top")
-    else
-      gameContainer.css("transform", "")
-      gameContainer.css("transform-origin", "")
-      gameContainer.css("-webkit-transform", "")
-      gameContainer.css("-webkit-transform-origin", "")
-      gameContainer.css("-moz-transform", "")
-      gameContainer.css("-moz-transform-origin", "")
-      gameContainer.css("-ms-transform", "")
-      gameContainer.css("-ms-transform-origin", "")
 
   # CocoView overridden methods ###############################################
 
@@ -200,7 +169,6 @@ module.exports = class PlayLevelView extends RootView
     @$el.find('#level-done-button').hide()
     $('body').addClass('is-playing')
     $('body').bind('touchmove', false) if @isIPadApp()
-    @scaleGameplayForAdSpace()
 
   afterInsert: ->
     super()
@@ -365,7 +333,13 @@ module.exports = class PlayLevelView extends RootView
   initSurface: ->
     webGLSurface = $('canvas#webgl-surface', @$el)
     normalSurface = $('canvas#normal-surface', @$el)
-    @surface = new Surface(@world, normalSurface, webGLSurface, thangTypes: @supermodel.getModels(ThangType), observing: @observing, playerNames: @findPlayerNames(), levelType: @level.get('type', true))
+    surfaceOptions =
+      thangTypes: @supermodel.getModels(ThangType)
+      observing: @observing
+      playerNames: @findPlayerNames()
+      levelType: @level.get('type', true)
+      stayVisible: @showAds()
+    @surface = new Surface(@world, normalSurface, webGLSurface, surfaceOptions)
     worldBounds = @world.getBounds()
     bounds = [{x: worldBounds.left, y: worldBounds.top}, {x: worldBounds.right, y: worldBounds.bottom}]
     @surface.camera.setBounds(bounds)
@@ -540,7 +514,6 @@ module.exports = class PlayLevelView extends RootView
 
   onWindowResize: (e) => 
     @endHighlight()
-    @scaleGameplayForAdSpace()
 
   onDisableControls: (e) ->
     return if e.controls and not ('level' in e.controls)
