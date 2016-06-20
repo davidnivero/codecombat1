@@ -30,6 +30,7 @@ before_script:
 script:
   - "./node_modules/karma/bin/karma start --browsers Firefox --single-run --reporters progress"
   - "npm run jasmine"
+  
 
 notifications:
   slack:
