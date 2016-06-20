@@ -28,7 +28,7 @@ before_script:
   - "sleep 15" # to give node a chance to start
 
 script:
-  - "./node_modules/karma/bin/karma start --browsers Firefox --single-run --reporters dots"
+  - "./node_modules/karma/bin/karma start --browsers Firefox --single-run --reporters progress"
   - "npm run jasmine"
 
 notifications:
